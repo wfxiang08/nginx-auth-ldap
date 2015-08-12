@@ -1577,6 +1577,12 @@ ngx_http_auth_ldap_handler(ngx_http_request_t *r)
     ngx_http_auth_ldap_ctx_t *ctx;
     int rc;
 
+    // 如果是内网IP, 则直接跳过
+    if (strncmp((const char*)r->connection->addr_text.data, "10.", r->connection->addr_text.len < 3 ? r->connection->addr_text.len: 3) == 0) {
+        ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "http_auth_ldap skip for internal access");
+        return NGX_OK;
+    }
+    
     alcf = ngx_http_get_module_loc_conf(r, ngx_http_auth_ldap_module);
     if (alcf->realm.len == 0) {
         return NGX_DECLINED;
